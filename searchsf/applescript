@@ -1,0 +1,100 @@
+on alfred_script(input)
+--  set testlist to {salesforce:"01234", bug:"22012", activeiq:"1914744", jirasf:"CSD-1234", jirangage:"SFPRIME-123", employee:"jon.bowman", burt:"1534290", smartsolve:"2007482824", callapi:"GetClusterInfo 1905485"}
+
+-- Validate if this is a number and set 
+try
+	set theNum to input as number
+on error errStr number errNum
+	set theNum to -1
+end try
+
+set theUrl to ""
+set theStr to input as string
+
+-- Initialize APICALL to False this is set to TRUE if we validate this is a call to run an API
+set APICALL to false
+
+
+-- Set up some lists
+set JIRAPROJ to {"EOS", "CSD", "CBD", "PE", "SBR", "DSA", "LABDESK", "SFPRIME", "HCIMON", "HCI", "HSB", "HCIRQDW1", "OPENSTACKSF", "CUSTESC", "CLOUD", "ELEM", "SUST", "CSESF", "CSE", "CPE", "TRIAGE", "DAPR"}
+
+set TYPEURLS to {smartsolve:"https://smartsolve.netapp.com/case?case_id=", bugs:"https://ngage.netapp.com/issues/?jql=%22FogBugz%20Case%20Number%22%20%20~%20", jirangage:"https://ngage.netapp.com/browse/", activeiq:"https://activeiq.solidfire.com/#/cluster/", burt:" https://bigtopportal.netapp.com/https/burtweb-prd.eng.netapp.com/burt/burt-bin/start?burt-id=", employee:"http://onestop.netapp.com/dir/?", callapi:"https://activeiq.solidfire.com/state/cluster/"}
+
+set APIS to {"GetClusterInfo", "GetCompleteStats", "ListEvents", "ListClusterFaults", "ListDrives", "GetDriveStats", "GetClusterCapacity", "GetClusterStats", "ListActiveNodes", "GetNodeStats", "ListActiveVolumes", "ListVolumeStatsByVolume", "GetClusterVersionInfo", "GetNTPStatus", "GetTime"}
+
+set SALESFORCEID to {"0", "4", "5", "6"}
+
+-- Split and set the args for where we have multiple args for example API calls "GetClusterInfo 1905485"
+-- The first arg is always there but then validate against the API list and only set the second if we are going to call an API
+set arg1 to theSplit(theStr, " ")
+set sArg1 to item 1 in arg1
+
+
+repeat with c from 1 to count of APIS
+	set validApi to item c of APIS
+	if (offset of validApi in theStr) is not 0 then
+		set arg2 to theSplit(theStr, " ")
+		set sArg2 to item 2 in arg2
+		set APICALL to true
+	end if
+end repeat
+
+
+-- handle the integer only values first i.e. bug numbers
+if theNum is not -1 then
+	set typeurl to salesforce of TYPEURLS
+	if (get the length of theStr) is 5 then
+		repeat with cc from 1 to count of SALESFORCEID
+			set cur to item cc of SALESFORCEID
+			if (offset of cur in theStr) is 1 then
+				set theUrl to typeurl & input
+			end if
+		end repeat
+		if (get the length of theUrl) is 0 then
+			set theUrl to bugs of TYPEURLS & input
+		end if
+	else if (get the length of theStr) is 10 then
+		if (offset of "2007" in theStr) is 1 or (offset of "2008" in theStr) is 1 or (offset of "2009" in theStr) is 1
+        or (offset of "2010 " in theStr) is 1 then
+			set theUrl to smartsolve of TYPEURLS & input
+		end if
+-- note that burt and activeiq are both 7 digits 
+-- to differentiate for the moment activeiq will be defined as starting with 19
+	else if (get the length of theStr) is 7 then
+		if (offset of "19" in theStr) is 1
+			set theUrl to activeiq of TYPEURLS & input
+		else 
+			set theUrl to burt of TYPEURLS & input
+		end if
+	end if
+	-- if we are running an API set the URL here
+else if APICALL is true then
+	set theUrl to callapi of TYPEURLS & sArg2 & "/" & sArg1
+else
+	repeat with counter_variable_name from 1 to count of JIRAPROJ
+		set current_character to item counter_variable_name of JIRAPROJ
+		if (offset of current_character in theStr) is not 0 then
+			set theUrl to jirangage of TYPEURLS & input
+		end if
+	end repeat
+end if
+
+return theUrl
+
+
+end alfred_script 
+
+
+
+on theSplit(theString, theDelimiter)
+	-- save delimiters to restore old settings
+	set oldDelimiters to AppleScript's text item delimiters
+	-- set delimiters to delimiter to be used
+	set AppleScript's text item delimiters to theDelimiter
+	-- create the array
+	set theArray to every text item of theString
+	-- restore the old setting
+	set AppleScript's text item delimiters to oldDelimiters
+	-- return the result
+	return theArray
+end theSplit
