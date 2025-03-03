@@ -12,5 +12,5 @@ Alfred Workflows
 
     Overview of the workflow 
 
-    ![image of the workflow](./Search-SF Workflow Image?raw=true "Title")
+    ![image of the workflow](./Search-SF Workflow Image.png?raw=true "Title")
 
