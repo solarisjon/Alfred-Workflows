@@ -9,3 +9,8 @@ Alfred Workflows
         script-for-workflow-backup  : A backup copy of the applescript in the above workflow 
 
     What is Alfred its a shortcut app for OSx on https://www.alfredapp.com
+
+    Overview of the workflow 
+
+    ![image of the workflow](./Search-SF Workflow Image?raw=true "Title")
+
