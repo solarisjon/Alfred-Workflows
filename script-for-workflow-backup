@@ -1,7 +1,7 @@
 on alfred_script(input)
 --  set testlist to {salesforce:"01234", bug:"22012", activeiq:"1914744", jirasf:"CSD-1234", jirangage:"SFPRIME-123", employee:"jon.bowman", burt:"1534290", smartsolve:"2007482824", callapi:"GetClusterInfo 1905485"}
 
--- Validate if this is a number and set 
+-- Validate if this is a number and set
 try
 	set theNum to input as number
 on error errStr number errNum
@@ -16,11 +16,12 @@ set APICALL to false
 
 
 -- Set up some lists
-set JIRAPROJ to {"EOS", "CSD", "CBD", "PE", "SBR", "DSA", "LABDESK", "SFPRIME", "HCIMON", "HCI", "HSB", "HCIRQDW1", "OPENSTACKSF", "CUSTESC", "CLOUD", "ELEM", "SUST", "CSESF", "CSE", "CPE", "TRIAGE", "DAPR"}
+set JIRAPROJ to {"EOS", "CSD", "CBD", "PE", "SBR", "DSA", "LABDESK", "SFPRIME", "HCIMON", "HCI", "HSB", "HCIRQDW1", "OPENSTACKSF", "CUSTESC", "CLOUD", "ELEM", "SUST", "CSESF", "CSE", "CPE", "TRIAGE", "DAPR", "CONTAP", "CADC", "ADCECS", "TRID", "ONTAPPM", "CFSHELF" }
 
-set TYPEURLS to {smartsolve:"https://smartsolve.netapp.com/case?case_id=", bugs:"https://ngage.netapp.com/issues/?jql=%22FogBugz%20Case%20Number%22%20%20~%20", jirangage:"https://ngage.netapp.com/browse/", activeiq:"https://activeiq.solidfire.com/#/cluster/", burt:" https://bigtopportal.netapp.com/https/burtweb-prd.eng.netapp.com/burt/burt-bin/start?burt-id=", employee:"http://onestop.netapp.com/dir/?", callapi:"https://activeiq.solidfire.com/state/cluster/"}
+set TYPEURLS to {salesforce:"http://unknownurl", smartsolve:"https://smartsolvecm.netapp.com/ui/#/case/", bugs:"https://ngage.netapp.com/issues/?jql=%22FogBugz%20Case%20Number%22%20%20~%20", jirangage:"https://ngage.netapp.com/browse/", activeiq:"https://activeiq.solidfire.com/#/cluster/", burt:" https://bigtopportal.netapp.com/https/burtview.netapp.com/burts/", employee:"http://onestop.netapp.com/dir/?", callapi:"https://activeiq.solidfire.com/state/cluster/"}
 
 set APIS to {"GetClusterInfo", "GetCompleteStats", "ListEvents", "ListClusterFaults", "ListDrives", "GetDriveStats", "GetClusterCapacity", "GetClusterStats", "ListActiveNodes", "GetNodeStats", "ListActiveVolumes", "ListVolumeStatsByVolume", "GetClusterVersionInfo", "GetNTPStatus", "GetTime"}
+
 
 set SALESFORCEID to {"0", "4", "5", "6"}
 
@@ -54,16 +55,15 @@ if theNum is not -1 then
 			set theUrl to bugs of TYPEURLS & input
 		end if
 	else if (get the length of theStr) is 10 then
-		if (offset of "2007" in theStr) is 1 or (offset of "2008" in theStr) is 1 or (offset of "2009" in theStr) is 1
-        or (offset of "2010 " in theStr) is 1 then
+		if (offset of "2007" in theStr) is 1 or (offset of "2008" in theStr) is 1 or (offset of "2009" in theStr) is 1 or (offset of "2010" in theStr) is 1 or (offset of "2011" in theStr) is 1 then
 			set theUrl to smartsolve of TYPEURLS & input
 		end if
--- note that burt and activeiq are both 7 digits 
+-- note that burt and activeiq are both 7 digits
 -- to differentiate for the moment activeiq will be defined as starting with 19
 	else if (get the length of theStr) is 7 then
 		if (offset of "19" in theStr) is 1
 			set theUrl to activeiq of TYPEURLS & input
-		else 
+		else
 			set theUrl to burt of TYPEURLS & input
 		end if
 	end if
@@ -82,7 +82,7 @@ end if
 return theUrl
 
 
-end alfred_script 
+end alfred_script
 
 
 
